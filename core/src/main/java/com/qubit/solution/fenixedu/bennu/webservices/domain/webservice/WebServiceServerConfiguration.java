@@ -39,7 +39,7 @@ public class WebServiceServerConfiguration extends WebServiceServerConfiguration
 
     protected WebServiceServerConfiguration() {
         super();
-        setActive(true);
+        setActive(false);
     }
 
     public WebServiceServerConfiguration(String implementationClass) {
