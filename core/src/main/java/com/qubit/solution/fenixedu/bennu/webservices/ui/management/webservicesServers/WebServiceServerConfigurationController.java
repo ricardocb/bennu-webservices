@@ -160,7 +160,7 @@ public class WebServiceServerConfigurationController extends WebservicesBaseCont
                     "Webservice does not support custom authentication, must implement public boolean static validate(String username, String password) method",
                     model);
             return update(webServiceServerConfiguration, model);
-        } else {
+        } else if (authenticationLevel != WebServiceAuthenticationLevel.NONE) {
             boolean valid = false;
             try {
                 Key key = domainKeyStore.getHelper().getKey(aliasForPrivateKey, passwordForPrivateKey);
