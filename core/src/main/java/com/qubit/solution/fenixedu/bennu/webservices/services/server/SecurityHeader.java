@@ -124,7 +124,7 @@ public class SecurityHeader {
         DateTimeFormatter forPattern = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         try {
             DateTime parseDateTime = forPattern.parseDateTime(getTimestamp());
-            Interval interval = new Interval(new DateTime().minusSeconds(15), new DateTime().plusSeconds(15));
+            Interval interval = new Interval(new DateTime().minusMinutes(5), new DateTime().plusMinutes(5));
             return interval.contains(parseDateTime);
         } catch (Throwable t) {
             t.printStackTrace();
@@ -137,6 +137,8 @@ public class SecurityHeader {
     }
 
     public boolean isValid() {
+        System.out.println("Timestamp valid: " + isTimestampValid());
+        System.out.println("User credentials valid: " + isUserCredentialsValid());
         return isTimestampValid() && isUserCredentialsValid();
     }
 
