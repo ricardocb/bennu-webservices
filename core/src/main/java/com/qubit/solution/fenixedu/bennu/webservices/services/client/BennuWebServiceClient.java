@@ -36,6 +36,9 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pt.ist.fenixframework.Atomic;
 
 import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceClientConfiguration;
@@ -44,17 +47,19 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 
 public abstract class BennuWebServiceClient {
 
-    static {
-        javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(new javax.net.ssl.HostnameVerifier() {
+//    static {
+//        javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(new javax.net.ssl.HostnameVerifier() {
+//
+//            public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
+//                if (hostname.equals("localhost")) {
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+//    }
 
-            public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
-                if (hostname.equals("localhost")) {
-                    return true;
-                }
-                return false;
-            }
-        });
-    }
+    private static final Logger logger = LoggerFactory.getLogger(BennuWebServiceClient.class);
 
     private String username;
     private String password;
@@ -73,6 +78,18 @@ public abstract class BennuWebServiceClient {
 
         // Just to make it create the configuration is does not exists
         getWebServiceClientConfiguration();
+    }
+
+    protected void logDebug(String message) {
+        logger.debug(message);
+    }
+
+    protected void logWarning(String message) {
+        logger.warn(message);
+    }
+
+    protected void logInfo(String message) {
+        logger.info(message);
     }
 
     public abstract void execute();

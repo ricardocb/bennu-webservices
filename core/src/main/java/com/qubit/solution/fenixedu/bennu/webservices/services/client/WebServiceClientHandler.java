@@ -129,7 +129,7 @@ public class WebServiceClientHandler implements SOAPHandler<SOAPMessageContext> 
                 .getCertificate(this.clientConfiguration.getAliasForCerficate()).getPublicKey();
     }
 
-    private String cypher(byte[] sessionKey, String informationToCipher) {
+    public static String cypher(byte[] sessionKey, String informationToCipher) {
         Cipher cipher;
         try {
             cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");

@@ -20,6 +20,9 @@
 	<properties>
 		<version.org.fenixedu.bennu>3.4.1</version.org.fenixedu.bennu>
 		<version.org.fenixedu.bennu.spring>1.2.0</version.org.fenixedu.bennu.spring>
+		<version.slf4j.api>1.7.2</version.slf4j.api>
+		<version.jaxws.rt>2.2.10</version.jaxws.rt>
+		<version.commons.net>3.3</version.commons.net>
 	</properties>
 
 	<dependencies>
@@ -39,14 +42,24 @@
 			<version>${version.org.fenixedu.bennu.spring}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${version.slf4j.api}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${version.slf4j.api}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>jaxws-rt</artifactId>
-			<version>2.2.10</version>
+			<version>${version.jaxws.rt}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
-			<version>3.3</version>
+			<version>${version.commons.net}</version>
 		</dependency>
 	</dependencies>
 

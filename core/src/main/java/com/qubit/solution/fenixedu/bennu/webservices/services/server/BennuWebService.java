@@ -34,10 +34,14 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceServerConfiguration;
 
 public abstract class BennuWebService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BennuWebService.class);
     static final String SECURITY_HEADER = "SECURITY_HEADER";
 
     private static Set<Class<? extends BennuWebService>> REGISTERED_WEBSERVICES = new HashSet<Class<? extends BennuWebService>>();
@@ -49,6 +53,18 @@ public abstract class BennuWebService {
     public BennuWebService() {
         super();
         REGISTERED_WEBSERVICES.add(this.getClass());
+    }
+
+    protected void logDebug(String message) {
+        logger.debug(message);
+    }
+
+    protected void logWarning(String message) {
+        logger.warn(message);
+    }
+
+    protected void logInfo(String message) {
+        logger.info(message);
     }
 
     public static Set<Class<? extends BennuWebService>> getAvailableWebServices() {
