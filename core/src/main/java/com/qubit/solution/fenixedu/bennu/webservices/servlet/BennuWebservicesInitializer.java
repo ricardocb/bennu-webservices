@@ -43,6 +43,7 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 
+import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceAuthenticationLevel;
 import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceClientConfiguration;
 import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceConfiguration;
 import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceServerConfiguration;
@@ -104,7 +105,13 @@ public class BennuWebservicesInitializer implements ServletContextListener {
         WebServiceServerConfiguration readByImplementationClass =
                 WebServiceConfiguration.readByImplementationClass(implementationClass);
         if (readByImplementationClass == null) {
-            new WebServiceServerConfiguration(implementationClass);
+            readByImplementationClass = new WebServiceServerConfiguration(implementationClass);
+        }
+        if (readByImplementationClass.getAuthenticationLevel() == WebServiceAuthenticationLevel.CUSTOM) {
+            readByImplementationClass.setAuthenticationLevel(WebServiceAuthenticationLevel.WS_SECURITY_CUSTOM);
+        }
+        if (readByImplementationClass.getAuthenticationLevel() == WebServiceAuthenticationLevel.PASSWORD) {
+            readByImplementationClass.setAuthenticationLevel(WebServiceAuthenticationLevel.WS_SECURITY);
         }
     }
 
@@ -113,7 +120,10 @@ public class BennuWebservicesInitializer implements ServletContextListener {
         WebServiceClientConfiguration readByImplementationClass =
                 WebServiceConfiguration.readByImplementationClass(implementationClass);
         if (readByImplementationClass == null) {
-            new WebServiceClientConfiguration(implementationClass);
+            readByImplementationClass = new WebServiceClientConfiguration(implementationClass);
+        }
+        if (readByImplementationClass.getAuthenticationLevel() == WebServiceAuthenticationLevel.PASSWORD) {
+            readByImplementationClass.setAuthenticationLevel(WebServiceAuthenticationLevel.WS_SECURITY);
         }
     }
 

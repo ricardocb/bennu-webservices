@@ -45,7 +45,7 @@ import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServic
 import com.qubit.solution.fenixedu.bennu.webservices.tools.keystore.KeyStoreWorker;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
-public abstract class BennuWebServiceClient {
+public abstract class BennuWebServiceClient<T> {
 
 //    static {
 //        javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(new javax.net.ssl.HostnameVerifier() {
@@ -92,7 +92,13 @@ public abstract class BennuWebServiceClient {
         logger.info(message);
     }
 
-    public abstract void execute();
+    public T getClient() {
+        BindingProvider port = getService();
+        setupClient(port);
+        return (T) port;
+    }
+
+    protected abstract BindingProvider getService();
 
     protected void setupClient(BindingProvider bindingProvider) {
         WebServiceClientConfiguration webServiceClientConfiguration = getWebServiceClientConfiguration();
@@ -101,18 +107,26 @@ public abstract class BennuWebServiceClient {
         if (url != null && url.length() > 0) {
             bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, url);
         }
+        if (webServiceClientConfiguration.isSSLActive()) {
+            setSSLConnection(bindingProvider);
+        }
+
         if (webServiceClientConfiguration.isSecured()) {
-            if (webServiceClientConfiguration.getDomainKeyStore() != null) {
-                setSSLConnection(bindingProvider);
-                List<Handler> handlerList = bindingProvider.getBinding().getHandlerChain();
-                if (handlerList == null) {
-                    handlerList = new ArrayList<Handler>();
+            if (webServiceClientConfiguration.isUsingWSSecurity()) {
+                if (webServiceClientConfiguration.getDomainKeyStore() != null) {
+                    List<Handler> handlerList = bindingProvider.getBinding().getHandlerChain();
+                    if (handlerList == null) {
+                        handlerList = new ArrayList<Handler>();
+                    }
+                    handlerList.add(new WebServiceClientHandler(webServiceClientConfiguration, this.username, this.password));
+                    bindingProvider.getBinding().setHandlerChain(handlerList);
+                } else {
+                    throw new IllegalStateException(
+                            "Security was activated to webservice client but no keystore was defined! Fix that in the configuration interface");
                 }
-                handlerList.add(new WebServiceClientHandler(webServiceClientConfiguration, this.username, this.password));
-                bindingProvider.getBinding().setHandlerChain(handlerList);
             } else {
-                throw new IllegalStateException(
-                        "Security was activated to webservice client but no keystore was defined! Fix that in the configuration interface");
+                bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, this.username);
+                bindingProvider.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, this.password);
             }
 
         }
@@ -138,7 +152,8 @@ public abstract class BennuWebServiceClient {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLSv1");
             KeyStoreWorker helper = webServiceClientConfiguration.getDomainKeyStore().getHelper();
-            KeyManagerFactory kmf = helper.getKeyManagerFactoryNeededForSSL(webServiceClientConfiguration.getAliasForCerficate());
+            KeyManagerFactory kmf =
+                    helper.getKeyManagerFactoryNeededForSSL(webServiceClientConfiguration.getAliasForSSLCertificate());
             TrustManagerFactory tmf = helper.getTrustManagerFactoryNeededForSSL();
             sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 

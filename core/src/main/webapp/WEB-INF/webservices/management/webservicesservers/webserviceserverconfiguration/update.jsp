@@ -145,7 +145,7 @@ ${portal.toolkit()}
 	</script>
 				</div>
 			</div>
-			<div class="form-group row withAuth" style="display: none;">
+			<div class="form-group row withWSSecurity" style="display: none;">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.WebServiceServerConfiguration.domainKeyStore" />
 				</div>
@@ -157,7 +157,7 @@ ${portal.toolkit()}
 					</select>
 				</div>
 			</div>
-			<div class="form-group row withAuth" style="display: none;">
+			<div class="form-group row withWSSecurity" style="display: none;">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.WebServiceServerConfiguration.aliasForPrivateKey" />
@@ -168,7 +168,7 @@ ${portal.toolkit()}
 					</select>
 				</div>
 			</div>
-			<div class="form-group row withAuth" style="display: none;">
+			<div class="form-group row withWSSecurity" style="display: none;">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.WebServiceServerConfiguration.passwordForPrivateKey" />
@@ -180,7 +180,7 @@ ${portal.toolkit()}
 						value='<c:out value='${not empty param.passwordforprivatekey ? param.passwordforprivatekey : webServiceServerConfiguration.passwordForPrivateKey }'/>' />
 				</div>
 			</div>
-			<div class="form-group row withPassword" style="display: none;">
+			<div class="form-group row withAuth" style="display: none;">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.WebServiceServerConfiguration.serviceUsername" />
@@ -192,7 +192,7 @@ ${portal.toolkit()}
 						value='<c:out value='${not empty param.serviceusername ? param.serviceusername : webServiceServerConfiguration.serviceUsername }'/>' />
 				</div>
 			</div>
-			<div class="form-group row withPassword" style="display: none;">
+			<div class="form-group row withAuth" style="display: none;">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.WebServiceServerConfiguration.servicePassword" />
@@ -242,16 +242,24 @@ $(document).ready(function() {
 		var value = $("#webServiceServerConfiguration_authenticationLevel").val();
 		if (value == "NONE") {
 			$(".withAuth").hide();
-			$(".withPassword").hide();
+			$(".withWSSecurity").hide();
 			$(".withAuth").attr('value','');
 			$(".withPassword").attr('value','');
-		} else if (value == "PASSWORD") {
+		} else if (value == "BASIC_AUTH") {
 			$(".withAuth").show();
-			$(".withPassword").show();
+			$(".withWSSecurity").hide();
+		} else if (value == "BASIC_AUTH_CUSTOM") {
+			$(".withAuth").hide();
+			$(".withWSSecurity").hide();
+			$(".withAuth").attr('value','');
 		}
-		else if (value == "CUSTOM") {
+		else if (value == "WS_SECURITY") {
 			$(".withAuth").show();
-			$(".withPassword").hide();
+			$(".withWSSecurity").show();
+		}
+		else if (value == "WS_SECURITY_CUSTOM") {
+			$(".withAuth").hide();
+			$(".withWSSecurity").show();
 			$(".withAuth").attr('value','');
 		}
 	}

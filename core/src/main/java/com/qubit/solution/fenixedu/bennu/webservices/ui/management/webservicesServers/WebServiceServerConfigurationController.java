@@ -116,9 +116,12 @@ public class WebServiceServerConfigurationController extends WebservicesBaseCont
                 new ArrayList<WebServiceAuthenticationLevel>(
                         Arrays.asList(com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceAuthenticationLevel
                                 .values()));
+        values.remove(WebServiceAuthenticationLevel.CUSTOM);
+        values.remove(WebServiceAuthenticationLevel.PASSWORD);
 
         if (!webServiceServerConfiguration.isCustomAuthenticationSupported()) {
-            values.remove(WebServiceAuthenticationLevel.CUSTOM);
+            values.remove(WebServiceAuthenticationLevel.BASIC_AUTH_CUSTOM);
+            values.remove(WebServiceAuthenticationLevel.WS_SECURITY_CUSTOM);
             addInfoMessage(
                     "Custom authentication not available because " + webServiceServerConfiguration.getImplementationClass()
                             + " does not implement public boolean static validate(String username, String password)", model);
@@ -155,9 +158,11 @@ public class WebServiceServerConfigurationController extends WebservicesBaseCont
         setWebServiceServerConfiguration(webServiceServerConfiguration, model);
 
         if (authenticationLevel == WebServiceAuthenticationLevel.CUSTOM
+                || authenticationLevel == WebServiceAuthenticationLevel.BASIC_AUTH_CUSTOM
+                || authenticationLevel == WebServiceAuthenticationLevel.WS_SECURITY_CUSTOM
                 && !webServiceServerConfiguration.isCustomAuthenticationSupported()) {
             addErrorMessage(
-                    "Webservice does not support custom authentication, must implement public boolean static validate(String username, String password) method",
+                    "Webservice does not support custom authentication, must implement public static boolean validate(String username, String password) method",
                     model);
             return update(webServiceServerConfiguration, model);
         } else if (authenticationLevel != WebServiceAuthenticationLevel.NONE) {

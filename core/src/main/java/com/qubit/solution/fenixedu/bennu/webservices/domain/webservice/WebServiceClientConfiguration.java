@@ -46,7 +46,11 @@ public class WebServiceClientConfiguration extends WebServiceClientConfiguration
     }
 
     public boolean isSecured() {
-        return getSecured();
+        return getAuthenticationLevel() != null && getAuthenticationLevel() != WebServiceAuthenticationLevel.NONE;
+    }
+
+    public boolean isSSLActive() {
+        return getSslActive();
     }
 
     public <T extends BennuWebServiceClient> T getClient() {

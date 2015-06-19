@@ -60,4 +60,8 @@ public abstract class WebServiceConfiguration extends WebServiceConfiguration_Ba
                 .filter(configuration -> configuration.getImplementationClass().equals(implementationClass)).findFirst()
                 .orElse(null);
     }
+
+    public boolean isUsingWSSecurity() {
+        return getAuthenticationLevel() != null && getAuthenticationLevel().isUsingWSSecurity();
+    }
 }

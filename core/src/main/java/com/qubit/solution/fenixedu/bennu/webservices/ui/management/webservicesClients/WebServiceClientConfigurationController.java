@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pt.ist.fenixframework.Atomic;
 
 import com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore;
+import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceAuthenticationLevel;
 import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceClientConfiguration;
 import com.qubit.solution.fenixedu.bennu.webservices.ui.BennuWebservicesController;
 import com.qubit.solution.fenixedu.bennu.webservices.ui.WebservicesBaseController;
@@ -101,13 +102,6 @@ public class WebServiceClientConfigurationController extends WebservicesBaseCont
                 + webServiceClientConfiguration.getExternalId();
     }
 
-    @RequestMapping(value = "/search/execute/{oid}")
-    public String processSearchToExecuteAction(@PathVariable("oid") WebServiceClientConfiguration webServiceClientConfiguration,
-            Model model) {
-        webServiceClientConfiguration.getClient().execute();
-        return "redirect:/webservices/management/webservicesclients/webserviceclientconfiguration/";
-    }
-
     @RequestMapping(value = "/update/{oid}/entries/{selectedKeyStore}", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody List<String> requestKeyStoreEntries(
@@ -121,6 +115,12 @@ public class WebServiceClientConfigurationController extends WebservicesBaseCont
         model.addAttribute("WebServiceClientConfiguration_domainKeyStore_options",
                 new ArrayList<com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore>(Bennu.getInstance()
                         .getDomainKeyStoresSet()));
+        ArrayList<WebServiceAuthenticationLevel> values = new ArrayList<WebServiceAuthenticationLevel>();
+        values.add(WebServiceAuthenticationLevel.NONE);
+        values.add(WebServiceAuthenticationLevel.BASIC_AUTH);
+        values.add(WebServiceAuthenticationLevel.WS_SECURITY);
+
+        model.addAttribute("authenticationLevelValues", values);
         setWebServiceClientConfiguration(webServiceClientConfiguration, model);
         return "webservices/management/webservicesclients/webserviceclientconfiguration/update";
     }
@@ -128,28 +128,40 @@ public class WebServiceClientConfigurationController extends WebservicesBaseCont
     @RequestMapping(value = "/update/{oid}", method = RequestMethod.POST)
     public String update(
             @PathVariable("oid") WebServiceClientConfiguration webServiceClientConfiguration,
-            @RequestParam(value = "secured", required = false) boolean secured,
+            @RequestParam(value = "authenticationlevel", required = false) WebServiceAuthenticationLevel authenticationLevel,
             @RequestParam(value = "url", required = false) java.lang.String url,
+            @RequestParam(value = "sslactive", required = false) boolean sslActive,
             @RequestParam(value = "domainkeystore", required = false) com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore domainKeyStore,
-            @RequestParam(value = "aliasforcerficate", required = false) java.lang.String aliasForCerficate, @RequestParam(
+            @RequestParam(value = "aliasforsslcerficate", required = false) java.lang.String aliasForSSLCerficate, @RequestParam(
+                    value = "aliasforcertificate", required = false) java.lang.String aliasForCertificate, @RequestParam(
                     value = "clientusername", required = false) java.lang.String clientUsername, @RequestParam(
                     value = "clientpassword", required = false) java.lang.String clientPassword, Model model) {
 
+        if (url != null && url.length() > 0 && url.startsWith("http:") && sslActive) {
+            url = url.replace("http:", "https:");
+        }
+        if (url != null && url.length() > 0 && url.startsWith("https:") && !sslActive) {
+            url = url.replace("https:", "http:");
+        }
+
         setWebServiceClientConfiguration(webServiceClientConfiguration, model);
-        updateWebServiceClientConfiguration(secured, url, domainKeyStore, aliasForCerficate, clientUsername, clientPassword,
-                model);
+        updateWebServiceClientConfiguration(authenticationLevel, url, sslActive, domainKeyStore, aliasForSSLCerficate,
+                aliasForCertificate, clientUsername, clientPassword, model);
 
         return "redirect:/webservices/management/webservicesclients/webserviceclientconfiguration/";
     }
 
     @Atomic
-    public void updateWebServiceClientConfiguration(boolean secured, java.lang.String url,
-            com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore domainKeyStore,
-            java.lang.String aliasForCerficate, String clientUsername, String clientPassword, Model m) {
+    public void updateWebServiceClientConfiguration(WebServiceAuthenticationLevel authenticationLevel, java.lang.String url,
+            boolean sslActive, com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore domainKeyStore,
+            java.lang.String aliasForSSLCertificate, java.lang.String aliasForCerficate, String clientUsername,
+            String clientPassword, Model m) {
 
         WebServiceClientConfiguration webServiceClientConfiguration = getWebServiceClientConfiguration(m);
-        webServiceClientConfiguration.setSecured(secured);
+        webServiceClientConfiguration.setAuthenticationLevel(authenticationLevel);
         webServiceClientConfiguration.setUrl(url);
+        webServiceClientConfiguration.setSslActive(sslActive);
+        webServiceClientConfiguration.setAliasForSSLCertificate(aliasForSSLCertificate);
         webServiceClientConfiguration.setDomainKeyStore(domainKeyStore);
         webServiceClientConfiguration.setAliasForCerficate(aliasForCerficate);
         webServiceClientConfiguration.setClientUsername(clientUsername);

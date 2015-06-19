@@ -27,7 +27,9 @@
 
 package com.qubit.solution.fenixedu.bennu.webservices.services.server;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -44,7 +46,10 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import org.apache.commons.net.util.Base64;
+
 import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServiceServerConfiguration;
+import com.sun.xml.ws.transport.Headers;
 
 public class BennuWebServiceHandler implements SOAPHandler<SOAPMessageContext> {
 
@@ -77,38 +82,70 @@ public class BennuWebServiceHandler implements SOAPHandler<SOAPMessageContext> {
                 }
 
                 if (configuration.isAuthenticatioNeeded()) {
-                    //if no header, add one
-                    if (soapHeader == null) {
-                        generateSOAPErrorMessage(soapMsg, "No header in message, unabled to validate security credentials");
-                    }
 
-                    String username = null;
-                    String password = null;
-                    String nonce = null;
-                    String created = null;
-
-                    Iterator<SOAPElement> childElements = soapHeader.getChildElements(QNAME_WSSE_SECURITY);
-                    if (childElements.hasNext()) {
-                        SOAPElement securityElement = childElements.next();
-                        Iterator<SOAPElement> usernameTokens = securityElement.getChildElements(QNAME_WSSE_USERNAME_TOKEN);
-                        if (usernameTokens.hasNext()) {
-                            SOAPElement usernameToken = usernameTokens.next();
-                            username = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_USERNAME).next()).getValue();
-                            password = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_PASSWORD).next()).getValue();
-                            nonce = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_NONCE).next()).getValue();
-                            created = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_CREATED).next()).getValue();
+                    if (configuration.isUsingWSSecurity()) {
+                        if (soapHeader == null) {
+                            generateSOAPErrorMessage(soapMsg, "No header in message, unabled to validate security credentials");
                         }
-                    }
-                    if (username == null || password == null || nonce == null || created == null) {
-                        generateSOAPErrorMessage(soapMsg, "Missing information, unabled to validate security credentials");
-                    }
 
-                    SecurityHeader securityHeader = new SecurityHeader(configuration, username, password, nonce, created);
-                    if (!securityHeader.isValid()) {
-                        generateSOAPErrorMessage(soapMsg, "Invalid credentials");
+                        String username = null;
+                        String password = null;
+                        String nonce = null;
+                        String created = null;
+
+                        Iterator<SOAPElement> childElements = soapHeader.getChildElements(QNAME_WSSE_SECURITY);
+                        if (childElements.hasNext()) {
+                            SOAPElement securityElement = childElements.next();
+                            Iterator<SOAPElement> usernameTokens = securityElement.getChildElements(QNAME_WSSE_USERNAME_TOKEN);
+                            if (usernameTokens.hasNext()) {
+                                SOAPElement usernameToken = usernameTokens.next();
+                                username = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_USERNAME).next()).getValue();
+                                password = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_PASSWORD).next()).getValue();
+                                nonce = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_NONCE).next()).getValue();
+                                created = ((SOAPElement) usernameToken.getChildElements(QNAME_WSSE_CREATED).next()).getValue();
+                            }
+                        }
+                        if (username == null || password == null || nonce == null || created == null) {
+                            generateSOAPErrorMessage(soapMsg, "Missing information, unabled to validate security credentials");
+                        }
+
+                        SecurityHeader securityHeader = new SecurityHeader(configuration, username, password, nonce, created);
+                        if (!securityHeader.isValid()) {
+                            generateSOAPErrorMessage(soapMsg, "Invalid credentials");
+                        } else {
+                            context.put(BennuWebService.SECURITY_HEADER, securityHeader);
+                            context.setScope(BennuWebService.SECURITY_HEADER, Scope.APPLICATION);
+                        }
                     } else {
-                        context.put(BennuWebService.SECURITY_HEADER, securityHeader);
-                        context.setScope(BennuWebService.SECURITY_HEADER, Scope.APPLICATION);
+                        com.sun.xml.ws.transport.Headers httpHeader = (Headers) context.get(MessageContext.HTTP_REQUEST_HEADERS);
+                        String username = null;
+                        String password = null;
+                        List<String> list = httpHeader.get("authorization");
+                        if (list != null) {
+                            for (String value : list) {
+                                if (value.startsWith("Basic")) {
+                                    String[] split = value.split(" ");
+                                    try {
+                                        String decoded = new String(Base64.decodeBase64(split[1]), "UTF-8");
+                                        String[] split2 = decoded.split(":");
+                                        if (split2.length == 2) {
+                                            username = split2[0];
+                                            password = split2[1];
+                                        }
+                                    } catch (UnsupportedEncodingException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
+
+                        if (username == null || password == null) {
+                            generateSOAPErrorMessage(soapMsg, "Missing information, unabled to validate security credentials");
+                        }
+
+                        if (!configuration.validate(username, password)) {
+                            generateSOAPErrorMessage(soapMsg, "Invalid credentials");
+                        }
                     }
                 }
 

@@ -154,7 +154,6 @@ ${portal.toolkit()}
 <th><spring:message code="label.WebServiceClientConfiguration.implementationClass"/></th>
 <th><spring:message code="label.WebServiceClientConfiguration.secured"/></th>
 <th><spring:message code="label.WebServiceClientConfiguration.url"/></th>
-<th><spring:message code="label.WebServiceClientConfiguration.aliasForCerficate"/></th>
 <%-- Operations Column --%>
 					<th></th>
 				</tr>
@@ -183,10 +182,8 @@ ${portal.toolkit()}
 "implementationclass" : "<c:out value='${searchResult.implementationClass}'/>",
 "secured" : "<c:if test="${searchResult.secured}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.secured}"><spring:message code="label.false" /></c:if>",
 "url" : "<c:out value='${searchResult.url}'/>",
-"aliasforcerficate" : "<c:out value='${searchResult.aliasForCerficate}'/>",
 "actions" :
 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}/webservices/management/webservicesclients/webserviceclientconfiguration/search/update/${searchResult.externalId}\"><spring:message code='label.management.webservicesClients.searchWebServiceClientConfiguration.update'/></a>" +
-" <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}/webservices/management/webservicesclients/webserviceclientconfiguration/search/execute/${searchResult.externalId}\"><spring:message code='label.management.webservicesClients.searchWebServiceClientConfiguration.execute'/></a>" +
                 "" },
             </c:forEach>
     ];
@@ -203,7 +200,6 @@ ${portal.toolkit()}
 			{ data: 'implementationclass' },
 			{ data: 'secured' },
 			{ data: 'url' },
-			{ data: 'aliasforcerficate' },
 			{ data: 'actions' }
 			
 		],

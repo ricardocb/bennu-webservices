@@ -85,8 +85,12 @@ public class WebServiceServerConfiguration extends WebServiceServerConfiguration
             throw new IllegalStateException(
                     "This should not happen. If webservice is in authentication level None validation should not be performed");
         case PASSWORD:
+        case WS_SECURITY:
+        case BASIC_AUTH:
             valid = getServiceUsername().equals(username) && getServicePassword().equals(password);
             break;
+        case BASIC_AUTH_CUSTOM:
+        case WS_SECURITY_CUSTOM:
         case CUSTOM:
             Method validationMethod = getValidationMethod();
             try {

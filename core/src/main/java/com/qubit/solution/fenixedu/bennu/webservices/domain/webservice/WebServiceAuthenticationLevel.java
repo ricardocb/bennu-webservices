@@ -29,5 +29,25 @@ package com.qubit.solution.fenixedu.bennu.webservices.domain.webservice;
 
 public enum WebServiceAuthenticationLevel {
 
-    NONE, PASSWORD, CUSTOM;
+    NONE(false), BASIC_AUTH(false), BASIC_AUTH_CUSTOM(false),
+
+    @Deprecated
+    PASSWORD(true),
+
+    WS_SECURITY(true),
+
+    @Deprecated
+    CUSTOM(true),
+
+    WS_SECURITY_CUSTOM(true);
+
+    private boolean usingWSSecurity;
+
+    private WebServiceAuthenticationLevel(boolean usingWSSecurity) {
+        this.usingWSSecurity = usingWSSecurity;
+    }
+
+    public boolean isUsingWSSecurity() {
+        return this.usingWSSecurity;
+    }
 }

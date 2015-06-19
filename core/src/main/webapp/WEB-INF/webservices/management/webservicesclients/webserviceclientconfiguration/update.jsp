@@ -92,27 +92,44 @@ ${portal.toolkit()}
 <form method="post" class="form-horizontal">
 <div class="panel panel-default">
   <div class="panel-body">
+
 <div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.secured"/></div> 
+<div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.authenticationLevel"/></div> 
 
 <div class="col-sm-2">
-<select id="webServiceClientConfiguration_secured" name="secured" class="form-control">
-<option value="false"><spring:message code="label.no"/></option>
-<option value="true"><spring:message code="label.yes"/></option>				
+<select id="webServiceClientConfiguration_authenticationLevel" name="authenticationlevel" class="form-control">
+		<c:forEach items="${authenticationLevelValues}" var="field">
+				<option value='<c:out value='${field}'/>'><c:out value='${field}' /></option>
+	   </c:forEach>
 </select>
 	<script>
-		$("#webServiceClientConfiguration_secured").val('<c:out value='${not empty param.secured ? param.secured : webServiceClientConfiguration.secured }'/>');
+		$("#webServiceClientConfiguration_authenticationLevel").val('<c:out value='${not empty param.authenticationlevel ? param.authenticationlevel : webServiceClientConfiguration.authenticationLevel }'/>');
 	</script>	
 </div>
-</div>		
+</div>
+
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.url"/></div> 
 
 <div class="col-sm-10">
 	<input id="webServiceClientConfiguration_url" class="form-control" type="text" name="url"  value='<c:out value='${not empty param.url ? param.url : webServiceClientConfiguration.url }'/>' />
 </div>	
-</div>		
+</div>	
+
 <div class="form-group row">
+	<div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.sslActive"/></div>
+	<div class="col-sm-4">
+		<select id="webServiceClientConfiguration_sslActive" name="sslactive" class="form-control">
+			<option value="false"><spring:message code="label.no"/></option>
+			<option value="true"><spring:message code="label.yes"/></option>				
+		</select>
+		<script>
+			$("#webServiceClientConfiguration_sslActive").val('<c:out value='${not empty param.sslactive ? param.sslactive : webServiceClientConfiguration.sslActive }'/>');
+		</script>	
+	</div>
+</div>		
+	
+<div class="form-group row withWSSecurity withSSL">
 <div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.domainKeyStore"/></div> 
 
 <div class="col-sm-4">
@@ -122,23 +139,34 @@ ${portal.toolkit()}
 		</select>
 				</div>
 </div>		
-<div class="form-group row">
+
+
+<div class="form-group row withSSL">
+<div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.aliasForSSLCertificate"/></div> 
+
+<div class="col-sm-10">
+	<select id="webServiceClientConfiguration_aliasForSSLCertificate" name="aliasforsslcertificate" >
+	</select>
+</div>	
+</div>
+		
+<div class="form-group row withWSSecurity">
 <div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.aliasForCerficate"/></div> 
 
 <div class="col-sm-10">
-	<select id="webServiceClientConfiguration_aliasForCerficate" name="aliasforcerficate" >
+	<select id="webServiceClientConfiguration_aliasForCerficate" name="aliasforcertificate" >
 	</select>
 </div>	
 </div>		
   </div>
- <div class="form-group row">
+ <div class="form-group row withAuth">
 <div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.clientUsername"/></div> 
 
 <div class="col-sm-10">
 	<input id="webServiceClientConfiguration_clientUsername" class="form-control" type="text" name="clientusername"  value='<c:out value='${not empty param.clientusername ? param.clientusername : webServiceClientConfiguration.clientUsername }'/>' />
 </div>	
 </div>		
- <div class="form-group row">
+ <div class="form-group row withAuth">
 <div class="col-sm-2 control-label"><spring:message code="label.WebServiceClientConfiguration.clientPassword"/></div> 
 
 <div class="col-sm-10">
@@ -181,7 +209,8 @@ $(document).ready(function() {
 	
 	function requestCertificates() {
 		var selectedID = $("#webServiceClientConfiguration_domainKeyStore").val();
-		var selectedKeyAlias = "${not empty param.aliasforcerficate ? param.aliasforcerficate : webServiceClientConfiguration.aliasForCerficate }";
+		var selectedKeyAlias = "${not empty param.aliasforcertificate ? param.aliasforcertificate : webServiceClientConfiguration.aliasForCerficate }";
+		var selectedSSLAlias = "${not empty param.aliasforsslcertificate ? param.aliasforsslcertificate : webServiceClientConfiguration.aliasForSSLCertificate }";
 		$.getJSON("${pageContext.request.contextPath}/webservices/management/webservicesclients/webserviceclientconfiguration/update/${webServiceClientConfiguration.externalId}/entries/" + selectedID,
 			function (data) {
 				 $("#webServiceClientConfiguration_aliasForCerficate").empty();
@@ -192,15 +221,59 @@ $(document).ready(function() {
 						$("#webServiceClientConfiguration_aliasForCerficate").append("<option value='" + val + "'>" + val + "</option>")
 					 }
 				});
+				 
+				 $("#webServiceClientConfiguration_aliasForSSLCertificate").empty();
+				 $.each(data, function( key, val ) {
+					 if (val == selectedSSLAlias) {
+					 	$("#webServiceClientConfiguration_aliasForSSLCertificate").append("<option value='" + val + "' selected>" + val + "</option>")
+					 }else {
+						$("#webServiceClientConfiguration_aliasForSSLCertificate").append("<option value='" + val + "'>" + val + "</option>")
+					 }
+				});
+				 
 			}
 		);
 	}
 
 	$(document).ready(function() {
+		enableFields();
 		requestCertificates();
 		$("#webServiceClientConfiguration_domainKeyStore").change(function() {
 			requestCertificates();
 		});
+		$("#webServiceClientConfiguration_authenticationLevel").change(function() {
+			enableFields();	
+		});
+		$("#webServiceClientConfiguration_sslActive").change(function() {
+			enableFields();	
+		});
 	});
+	
+	
+	function enableFields() {
+		var value = $("#webServiceClientConfiguration_authenticationLevel").val();
+		var enabledSSL = $("#webServiceClientConfiguration_sslActive").val() == "true";
+		
+		$(".withSSL").hide();
+		
+		if (value == "NONE") {
+			$(".withAuth").hide();
+			$(".withWSSecurity").hide();
+			$(".withAuth").attr('value','');
+			$(".withWSSecurity").attr('value','');
+		} else if (value == "WS_SECURITY") {
+			$(".withAuth").show();
+			$(".withWSSecurity").show();
+		}
+		else if (value == "BASIC_AUTH") {
+			$(".withAuth").show();
+			$(".withWSSecurity").hide();
+			$(".withWSSecurity").attr('value','');
+		}
+		
+		if (enabledSSL) {
+			$(".withSSL").show();
+		}
+	}
 	
 </script>
