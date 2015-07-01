@@ -132,7 +132,7 @@ public class WebServiceClientConfigurationController extends WebservicesBaseCont
             @RequestParam(value = "url", required = false) java.lang.String url,
             @RequestParam(value = "sslactive", required = false) boolean sslActive,
             @RequestParam(value = "domainkeystore", required = false) com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore domainKeyStore,
-            @RequestParam(value = "aliasforsslcerficate", required = false) java.lang.String aliasForSSLCerficate, @RequestParam(
+            @RequestParam(value = "aliasforsslcertificate", required = false) java.lang.String aliasForSSLCerficate, @RequestParam(
                     value = "aliasforcertificate", required = false) java.lang.String aliasForCertificate, @RequestParam(
                     value = "clientusername", required = false) java.lang.String clientUsername, @RequestParam(
                     value = "clientpassword", required = false) java.lang.String clientPassword, Model model) {
