@@ -64,4 +64,8 @@ public abstract class WebServiceConfiguration extends WebServiceConfiguration_Ba
     public boolean isUsingWSSecurity() {
         return getAuthenticationLevel() != null && getAuthenticationLevel().isUsingWSSecurity();
     }
+
+    public boolean isAuthenticatioNeeded() {
+        return getAuthenticationLevel() != null && getAuthenticationLevel() != WebServiceAuthenticationLevel.NONE;
+    }
 }

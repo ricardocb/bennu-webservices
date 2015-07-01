@@ -51,10 +51,6 @@ public class WebServiceServerConfiguration extends WebServiceServerConfiguration
         return super.getActive();
     }
 
-    public boolean isAuthenticatioNeeded() {
-        return getAuthenticationLevel() != null && getAuthenticationLevel() != WebServiceAuthenticationLevel.NONE;
-    }
-
     private Method getValidationMethod() {
         Class implementationClass = null;
         Method m = null;
