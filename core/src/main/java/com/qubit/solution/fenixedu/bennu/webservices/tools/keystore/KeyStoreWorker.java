@@ -46,9 +46,9 @@ import java.util.List;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.joda.time.DateTime;
-
 import com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore;
+
+import org.joda.time.DateTime;
 
 public class KeyStoreWorker {
 
@@ -62,41 +62,38 @@ public class KeyStoreWorker {
 
     public KeyStoreWorker(IKeyStoreBinder keyStore) {
         this.domainKeyStore = keyStore;
+        KeyStore openedKeyStore = null;
         try {
-            this.keystore = openKeyStore(domainKeyStore.getBinaryContent(), domainKeyStore.getPassword());
+            openedKeyStore = openKeyStore(domainKeyStore.getBinaryContent(), domainKeyStore.getPassword());;
         } catch (Throwable t) {
-            throw new RuntimeException("Unable to use keystore");
+            t.printStackTrace();
         }
+        this.keystore = openedKeyStore;
     }
 
     public List<KeyStoreEntryRepresentation> getEntries() {
-        java.security.KeyStore javaKeyStore = null;
         List<KeyStoreEntryRepresentation> entries = new ArrayList<KeyStoreEntryRepresentation>();
-        try {
-            javaKeyStore = openKeyStore(domainKeyStore.getBinaryContent(), domainKeyStore.getPassword());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return entries;
-        }
 
-        try {
-            Enumeration<String> aliases = javaKeyStore.aliases();
+        if (keystore != null) {
+            try {
+                Enumeration<String> aliases = this.keystore.aliases();
 
-            while (aliases.hasMoreElements()) {
-                String alias = aliases.nextElement();
-                Certificate certificate = javaKeyStore.getCertificate(alias);
+                while (aliases.hasMoreElements()) {
+                    String alias = aliases.nextElement();
+                    Certificate certificate = this.keystore.getCertificate(alias);
 
-                String type = certificate.getType();
-                if (type.equals(SUPPORTED_CERTIFICATE_TYPE)) {
-                    X509Certificate cert = (X509Certificate) certificate;
-                    boolean isKey = javaKeyStore.isKeyEntry(alias);
-                    boolean isCert = javaKeyStore.isCertificateEntry(alias);
-                    entries.add(new KeyStoreEntryRepresentation(alias, new DateTime(cert.getNotBefore()), new DateTime(cert
-                            .getNotAfter()), isKey, isCert));
+                    String type = certificate.getType();
+                    if (type.equals(SUPPORTED_CERTIFICATE_TYPE)) {
+                        X509Certificate cert = (X509Certificate) certificate;
+                        boolean isKey = this.keystore.isKeyEntry(alias);
+                        boolean isCert = this.keystore.isCertificateEntry(alias);
+                        entries.add(new KeyStoreEntryRepresentation(alias, new DateTime(cert.getNotBefore()), new DateTime(cert
+                                .getNotAfter()), isKey, isCert));
+                    }
                 }
+            } catch (KeyStoreException e) {
+                e.printStackTrace();
             }
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
         }
 
         return entries;
@@ -116,6 +113,7 @@ public class KeyStoreWorker {
     private static java.security.KeyStore openKeyStore(byte[] content, String password) throws KeyStoreException,
             NoSuchAlgorithmException, CertificateException, IOException {
         java.security.KeyStore javaKeyStore = java.security.KeyStore.getInstance(SUPPORTED_KEY_STORE_TYPE);
+
         javaKeyStore.load(new ByteArrayInputStream(content), password == null ? null : password.toCharArray());
         return javaKeyStore;
     }
@@ -125,6 +123,7 @@ public class KeyStoreWorker {
     }
 
     private void writeBack(String password) {
+        checkKeystore();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             keystore.store(byteArrayOutputStream, password != null ? password.toCharArray() : null);
@@ -141,7 +140,15 @@ public class KeyStoreWorker {
 
     }
 
+    private void checkKeystore() {
+        if (keystore == null) {
+            throw new IllegalStateException(
+                    "Seems keystore is not open! You cannot save info to the keystore if it's not open. Maybe the password configuration is wrong?");
+        }
+    }
+
     public void removeEntry(String alias) {
+        checkKeystore();
         try {
             this.keystore.deleteEntry(alias);
             writeBack();
@@ -152,6 +159,8 @@ public class KeyStoreWorker {
     }
 
     public void addKeyPair(String alias, byte[] keyContent, String keyPassword) {
+        checkKeystore();
+
         Key key = getKey(alias, keyPassword);
         if (key != null) {
             throw new IllegalStateException("Key with alias: " + alias + " already present in keystore: "
@@ -194,6 +203,7 @@ public class KeyStoreWorker {
     }
 
     public void addCertificate(String alias, byte[] certificateFile) {
+        checkKeystore();
         Certificate certificate = getCertificate(alias);
         if (certificate != null) {
             throw new IllegalStateException("Certificate with alias: " + alias + " already present in keystore: "
@@ -210,6 +220,7 @@ public class KeyStoreWorker {
     }
 
     public KeyManagerFactory getKeyManagerFactoryNeededForSSL(String remoteCertificate) {
+        checkKeystore();
         try {
             KeyStore keyStore = KeyStore.getInstance(SUPPORTED_KEY_STORE_TYPE);
             keyStore.load(null, null);
@@ -233,6 +244,7 @@ public class KeyStoreWorker {
     }
 
     public TrustManagerFactory getTrustManagerFactoryNeededForSSL() {
+        checkKeystore();
         try {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(SUPPORTED_MANAGER_TYPE);
             tmf.init(this.keystore);
@@ -243,6 +255,7 @@ public class KeyStoreWorker {
     }
 
     public Key getKey(String alias, String password) {
+        checkKeystore();
         try {
             return this.keystore.getKey(alias, password != null ? password.toCharArray() : null);
         } catch (Exception e) {
@@ -251,6 +264,7 @@ public class KeyStoreWorker {
     }
 
     public Certificate getCertificate(String alias) {
+        checkKeystore();
         try {
             return this.keystore.getCertificate(alias);
         } catch (KeyStoreException e) {
@@ -259,6 +273,7 @@ public class KeyStoreWorker {
     }
 
     public boolean isCertificate(String alias) {
+        checkKeystore();
         try {
             return this.keystore.isCertificateEntry(alias);
         } catch (KeyStoreException e) {
@@ -268,6 +283,7 @@ public class KeyStoreWorker {
     }
 
     public boolean isKey(String alias) {
+        checkKeystore();
         try {
             return this.keystore.isKeyEntry(alias);
         } catch (KeyStoreException e) {

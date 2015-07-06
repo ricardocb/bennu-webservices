@@ -120,7 +120,7 @@ ${portal.toolkit()}
 						value='<c:out value='${not empty param.name ? param.name : domainKeyStore.name }'/>' />
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row" id="oldPasswordField">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.DomainKeyStore.oldPassword" />
 				</div>
@@ -162,3 +162,10 @@ ${portal.toolkit()}
 	</div>
 </form>
 
+<script type="text/javascript">
+	$(document).ready(function() {
+		<c:if test="${not empty noOldPasswordRequest}">
+				$("#oldPasswordField").hide();
+		</c:if>
+	});
+</script>

@@ -197,6 +197,13 @@ public class DomainKeyStoreController extends WebservicesBaseController {
     @RequestMapping(value = "/update/{oid}", method = RequestMethod.GET)
     public String update(@PathVariable("oid") DomainKeyStore domainKeyStore, Model model) {
         setDomainKeyStore(domainKeyStore, model);
+        if (!domainKeyStore.isAbleToOpenKeyStore()) {
+            addWarningMessage(
+                    "Unable to open keystore. The most common problem is that the password is incorrect, hence when doing password update we'll only change in the system and not in the keystore itself. You can use this to fix the password problem.",
+                    model);
+            model.addAttribute("noOldPasswordRequest", true);
+        }
+
         return "webservices/management/keystores/domainkeystore/update";
     }
 
@@ -209,12 +216,18 @@ public class DomainKeyStoreController extends WebservicesBaseController {
 
         setDomainKeyStore(domainKeyStore, model);
 
-        if (oldPassword != null && !domainKeyStore.getPassword().equals(oldPassword)) {
+        if (domainKeyStore.isAbleToOpenKeyStore() && oldPassword != null && !domainKeyStore.getPassword().equals(oldPassword)) {
             addErrorMessage("Password incorrect", model);
             return "webservices/management/keystores/domainkeystore/update";
         }
         if (password != null && !password.equals(passwordVerification)) {
             addErrorMessage("Password and password verification did not match", model);
+            if (!domainKeyStore.isAbleToOpenKeyStore()) {
+                addWarningMessage(
+                        "Unable to open keystore. The most common problem is that the password is incorrect, hence when doing password update we'll only change in the system and not in the keystore itself. You can use this to fix the password problem.",
+                        model);
+                model.addAttribute("noOldPasswordRequest", true);
+            }
             return "webservices/management/keystores/domainkeystore/update";
         }
 

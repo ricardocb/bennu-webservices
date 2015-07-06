@@ -79,12 +79,16 @@ public class DomainKeyStore extends DomainKeyStore_Base implements IKeyStoreBind
     }
 
     public void changePassword(String oldPassword, String newPassword) {
-        if (!getPassword().equals(oldPassword)) {
-            throw new IllegalAccessError("Invalid password, unable to change");
+        if (isAbleToOpenKeyStore()) {
+            if (!getPassword().equals(oldPassword)) {
+                throw new IllegalAccessError("Invalid password, unable to change");
+            }
+            KeyStoreWorker keyStoreWorker = new KeyStoreWorker(this);
+            keyStoreWorker.changePassword(newPassword);
+            super.setPassword(newPassword);
+        } else {
+            super.setPassword(newPassword);
         }
-        KeyStoreWorker keyStoreWorker = new KeyStoreWorker(this);
-        keyStoreWorker.changePassword(newPassword);
-        setPassword(newPassword);
     }
 
     public KeyStoreWorker getHelper() {
