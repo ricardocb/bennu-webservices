@@ -132,7 +132,7 @@ public abstract class BennuWebServiceClient<T> {
         }
     }
 
-    private WebServiceClientConfiguration getWebServiceClientConfiguration() {
+    protected WebServiceClientConfiguration getWebServiceClientConfiguration() {
         WebServiceClientConfiguration configuration =
                 WebServiceClientConfiguration.readByImplementationClass(getClass().getName());
         if (configuration == null) {
@@ -150,7 +150,7 @@ public abstract class BennuWebServiceClient<T> {
     private void setSSLConnection(BindingProvider bp) {
         WebServiceClientConfiguration webServiceClientConfiguration = getWebServiceClientConfiguration();
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLSv1");
+            SSLContext sslContext = SSLContext.getInstance(getSSLVersion());
             KeyStoreWorker helper = webServiceClientConfiguration.getDomainKeyStore().getHelper();
             KeyManagerFactory kmf =
                     helper.getKeyManagerFactoryNeededForSSL(webServiceClientConfiguration.getAliasForSSLCertificate());
@@ -161,5 +161,9 @@ public abstract class BennuWebServiceClient<T> {
         } catch (Exception e) {
             throw new RuntimeException("Problems creating sslContext", e);
         }
+    }
+    
+    protected String getSSLVersion() {
+        return "TLSv1.2";
     }
 }
