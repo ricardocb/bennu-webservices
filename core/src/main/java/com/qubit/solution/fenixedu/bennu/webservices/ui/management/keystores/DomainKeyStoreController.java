@@ -50,8 +50,8 @@ import com.qubit.solution.fenixedu.bennu.webservices.services.server.BennuWebSer
 import com.qubit.solution.fenixedu.bennu.webservices.ui.BennuWebservicesController;
 import com.qubit.solution.fenixedu.bennu.webservices.ui.WebservicesBaseController;
 
-@SpringFunctionality(app = BennuWebservicesController.class, title = "label.title.management.keystores", accessGroup = "logged")
-// CHANGE_ME
+@SpringFunctionality(app = BennuWebservicesController.class, title = "label.title.management.keystores",
+        accessGroup = "#managers")
 @RequestMapping("/webservices/management/keystores/domainkeystore")
 public class DomainKeyStoreController extends WebservicesBaseController {
 

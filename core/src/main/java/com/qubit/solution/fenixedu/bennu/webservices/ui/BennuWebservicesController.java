@@ -33,8 +33,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequestMapping("/bennu-webservices")
-@SpringApplication(group = "logged", path = "bennu-webservices", title = "title.BennuWebservices")
-@SpringFunctionality(app = BennuWebservicesController.class, title = "title.BennuWebservices")
+@SpringApplication(group = "#managers", path = "bennu-webservices", title = "title.BennuWebservices")
 public class BennuWebservicesController {
 
     @RequestMapping
