@@ -49,8 +49,7 @@ import com.qubit.solution.fenixedu.bennu.webservices.ui.BennuWebservicesControll
 import com.qubit.solution.fenixedu.bennu.webservices.ui.WebservicesBaseController;
 
 @SpringFunctionality(app = BennuWebservicesController.class, title = "label.title.management.webservicesClients",
-        accessGroup = "logged")
-// CHANGE_ME accessGroup = "group1 | group2 | groupXPTO"
+        accessGroup = "#managers")
 @RequestMapping("/webservices/management/webservicesclients/webserviceclientconfiguration")
 public class WebServiceClientConfigurationController extends WebservicesBaseController {
 
@@ -132,8 +131,8 @@ public class WebServiceClientConfigurationController extends WebservicesBaseCont
             @RequestParam(value = "url", required = false) java.lang.String url,
             @RequestParam(value = "sslactive", required = false) boolean sslActive,
             @RequestParam(value = "domainkeystore", required = false) com.qubit.solution.fenixedu.bennu.webservices.domain.keystore.DomainKeyStore domainKeyStore,
-            @RequestParam(value = "aliasforsslcertificate", required = false) java.lang.String aliasForSSLCerficate, @RequestParam(
-                    value = "aliasforcertificate", required = false) java.lang.String aliasForCertificate, @RequestParam(
+            @RequestParam(value = "aliasforsslcertificate", required = false) java.lang.String aliasForSSLCerficate,
+            @RequestParam(value = "aliasforcertificate", required = false) java.lang.String aliasForCertificate, @RequestParam(
                     value = "clientusername", required = false) java.lang.String clientUsername, @RequestParam(
                     value = "clientpassword", required = false) java.lang.String clientPassword, Model model) {
 

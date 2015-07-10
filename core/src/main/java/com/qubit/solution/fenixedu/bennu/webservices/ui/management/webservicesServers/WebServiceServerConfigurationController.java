@@ -50,8 +50,7 @@ import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServic
 import com.qubit.solution.fenixedu.bennu.webservices.ui.BennuWebservicesController;
 import com.qubit.solution.fenixedu.bennu.webservices.ui.WebservicesBaseController;
 
-@SpringFunctionality(app = BennuWebservicesController.class, title = "label.title.management.webservices", accessGroup = "anyone")
-// CHANGE_ME accessGroup = "group1 | group2 | groupXPTO"
+@SpringFunctionality(app = BennuWebservicesController.class, title = "label.title.management.webservices", accessGroup = "#managers")
 @RequestMapping("/webservices/management/webservicesservers/webserviceserverconfiguration")
 public class WebServiceServerConfigurationController extends WebservicesBaseController {
 
