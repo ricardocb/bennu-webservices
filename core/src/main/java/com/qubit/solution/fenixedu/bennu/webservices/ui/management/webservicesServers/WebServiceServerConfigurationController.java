@@ -50,7 +50,8 @@ import com.qubit.solution.fenixedu.bennu.webservices.domain.webservice.WebServic
 import com.qubit.solution.fenixedu.bennu.webservices.ui.BennuWebservicesController;
 import com.qubit.solution.fenixedu.bennu.webservices.ui.WebservicesBaseController;
 
-@SpringFunctionality(app = BennuWebservicesController.class, title = "label.title.management.webservices", accessGroup = "#managers")
+@SpringFunctionality(app = BennuWebservicesController.class, title = "label.title.management.webservices",
+        accessGroup = "#managers")
 @RequestMapping("/webservices/management/webservicesservers/webserviceserverconfiguration")
 public class WebServiceServerConfigurationController extends WebservicesBaseController {
 
@@ -156,10 +157,9 @@ public class WebServiceServerConfigurationController extends WebservicesBaseCont
 
         setWebServiceServerConfiguration(webServiceServerConfiguration, model);
 
-        if (authenticationLevel == WebServiceAuthenticationLevel.CUSTOM
-                || authenticationLevel == WebServiceAuthenticationLevel.BASIC_AUTH_CUSTOM
-                || authenticationLevel == WebServiceAuthenticationLevel.WS_SECURITY_CUSTOM
-                && !webServiceServerConfiguration.isCustomAuthenticationSupported()) {
+        if (!webServiceServerConfiguration.isCustomAuthenticationSupported()
+                && (authenticationLevel == WebServiceAuthenticationLevel.CUSTOM
+                        || authenticationLevel == WebServiceAuthenticationLevel.BASIC_AUTH_CUSTOM || authenticationLevel == WebServiceAuthenticationLevel.WS_SECURITY_CUSTOM)) {
             addErrorMessage(
                     "Webservice does not support custom authentication, must implement public static boolean validate(String username, String password) method",
                     model);
