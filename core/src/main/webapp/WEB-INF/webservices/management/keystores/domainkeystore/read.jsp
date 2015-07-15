@@ -223,7 +223,7 @@ ${portal.toolkit()}
 			{ data: 'alias' },
 			{ data: 'validFrom' },
 			{ data: 'validTo' },
-			{ data: 'actions' }
+			{ data: 'actions',className="all" }
 			
 		],
 		"data" : entriesSet

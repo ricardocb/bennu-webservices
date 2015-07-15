@@ -252,7 +252,7 @@ ${portal.toolkit()}
 		},
 		"columns": [
 			{ data: 'name' },
-			{ data: 'actions' }
+			{ data: 'actions',className="all" }
 			
 		],
 		"data" : searchdomainkeystoreDataSet,

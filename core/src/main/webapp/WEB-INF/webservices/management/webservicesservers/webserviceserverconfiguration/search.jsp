@@ -201,7 +201,7 @@ ${portal.toolkit()}
 			{ data: 'implementationclass' },
 			{ data: 'active' },
 			{ data: 'domainkeystore' },
-			{ data: 'actions' }
+			{ data: 'actions',className="all" }
 			
 		],
 		"data" : searchwebserviceserverconfigurationDataSet,

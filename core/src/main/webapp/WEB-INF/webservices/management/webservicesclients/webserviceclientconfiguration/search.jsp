@@ -200,7 +200,7 @@ ${portal.toolkit()}
 			{ data: 'implementationclass' },
 			{ data: 'secured' },
 			{ data: 'url' },
-			{ data: 'actions' }
+			{ data: 'actions',className="all" }
 			
 		],
 		"data" : searchwebserviceclientconfigurationDataSet,
